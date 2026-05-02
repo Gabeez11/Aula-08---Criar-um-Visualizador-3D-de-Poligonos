@@ -5,6 +5,11 @@ import {
   calculateBoundingBoxCenter,
   calculateBoundingBoxSize,
 } from "./math/boundingBox.js";
+import {
+  CanvasRenderer,
+  DISPLAY_MODES,
+  PROJECTIONS,
+} from "./rendering/renderer.js";
 import { calculateTopology } from "./utils/topology.js";
 
 const objInput = document.querySelector("#objInput");
@@ -21,10 +26,29 @@ const materialInfo = document.querySelector("#materialInfo");
 const mtllibInfo = document.querySelector("#mtllibInfo");
 const meshInfo = document.querySelector("#meshInfo");
 const warnings = document.querySelector("#warnings");
+const viewerCanvas = document.querySelector("#viewerCanvas");
+const loadedModelName = document.querySelector("#loadedModelName");
+const displayModeValue = document.querySelector("#displayModeValue");
+const projectionValue = document.querySelector("#projectionValue");
+const projectionButton = document.querySelector("#toggleProjection");
+const displayModeButtons = document.querySelectorAll("[data-display-mode]");
+
+const renderer = new CanvasRenderer(viewerCanvas);
+let currentMesh = null;
+let pendingRedraw = null;
 
 objInput.addEventListener("change", loadSelectedFiles);
 mtlInput.addEventListener("change", loadSelectedFiles);
 loadSampleButton.addEventListener("click", loadSample);
+projectionButton.addEventListener("click", toggleProjection);
+displayModeButtons.forEach((button) => {
+  button.addEventListener("click", () => setDisplayMode(button.dataset.displayMode));
+});
+document.addEventListener("keydown", handleKeyboardShortcut);
+window.addEventListener("resize", redraw);
+
+updateRendererStatus();
+redraw();
 
 async function loadSelectedFiles() {
   const objFile = objInput.files?.[0];
@@ -117,7 +141,10 @@ function renderModelSummary(model, fileName) {
   });
 
   renderWarnings(model.warnings);
+  currentMesh = mesh;
+  loadedModelName.textContent = fileName;
   message.textContent = `Arquivo carregado: ${fileName}`;
+  redraw();
 }
 
 function renderWarnings(items) {
@@ -138,6 +165,8 @@ function renderWarnings(items) {
 }
 
 function resetUI(text) {
+  currentMesh = null;
+  loadedModelName.textContent = "Nenhum";
   vertexCount.textContent = "0";
   faceCount.textContent = "0";
   edgeCount.textContent = "0";
@@ -149,6 +178,7 @@ function resetUI(text) {
   meshInfo.textContent = "Nenhuma malha montada.";
   warnings.replaceChildren();
   message.textContent = text;
+  redraw();
 }
 
 function formatMeshInfo(mesh) {
@@ -179,4 +209,91 @@ function formatNumber(value) {
   }
 
   return value.toFixed(3).replace(/\.?0+$/, "");
+}
+
+function toggleProjection() {
+  const nextProjection =
+    renderer.projection === PROJECTIONS.ISOMETRIC
+      ? PROJECTIONS.PERSPECTIVE
+      : PROJECTIONS.ISOMETRIC;
+
+  renderer.setProjection(nextProjection);
+  updateRendererStatus();
+  redraw();
+}
+
+function setDisplayMode(displayMode) {
+  renderer.setDisplayMode(displayMode);
+  updateRendererStatus();
+  redraw();
+}
+
+function handleKeyboardShortcut(event) {
+  if (event.ctrlKey || event.metaKey || event.altKey || event.defaultPrevented) {
+    return;
+  }
+
+  const key = event.key.toLowerCase();
+
+  if (key === "p") {
+    event.preventDefault();
+    toggleProjection();
+    return;
+  }
+
+  if (key === "w") {
+    event.preventDefault();
+    setDisplayMode(DISPLAY_MODES.WIREFRAME);
+    return;
+  }
+
+  if (key === "s") {
+    event.preventDefault();
+    setDisplayMode(DISPLAY_MODES.SOLID);
+  }
+}
+
+function updateRendererStatus() {
+  displayModeValue.textContent = formatDisplayMode(renderer.displayMode);
+  projectionValue.textContent = formatProjection(renderer.projection);
+  projectionButton.textContent =
+    renderer.projection === PROJECTIONS.ISOMETRIC
+      ? "Perspectiva"
+      : "Isometrica";
+
+  displayModeButtons.forEach((button) => {
+    const isActive = button.dataset.displayMode === renderer.displayMode;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+}
+
+function redraw() {
+  if (pendingRedraw !== null) {
+    cancelAnimationFrame(pendingRedraw);
+  }
+
+  pendingRedraw = requestAnimationFrame(() => {
+    pendingRedraw = null;
+    renderer.render(currentMesh);
+  });
+}
+
+function formatDisplayMode(displayMode) {
+  const labels = {
+    [DISPLAY_MODES.SOLID]: "Solido",
+    [DISPLAY_MODES.WIREFRAME]: "Wireframe",
+    [DISPLAY_MODES.SOLID_WIREFRAME]: "Solido + wireframe",
+  };
+
+  return labels[displayMode] ?? displayMode;
+}
+
+function formatProjection(projection) {
+  const labels = {
+    [PROJECTIONS.ISOMETRIC]: "Isometrica",
+    [PROJECTIONS.PERSPECTIVE]: "Perspectiva",
+  };
+
+  return labels[projection] ?? projection;
 }

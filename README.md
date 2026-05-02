@@ -1,6 +1,6 @@
 # Visualizador 3D de Poligonos
 
-Etapa atual: montagem da malha renderizavel a partir de arquivos `.obj` e
+Etapa atual: renderizacao da malha renderizavel a partir de arquivos `.obj` e
 `.mtl` ja parseados.
 
 ## Como rodar
@@ -33,9 +33,22 @@ Na tela inicial, carregue um arquivo `.obj` e, se houver, um ou mais arquivos
 - quantidade aproximada de arestas `E`
 - resultado da Formula de Euler `V - E + F`
 - quantidade de triangulos gerados para a malha renderizavel
+- modelo renderizado em canvas
+- modo atual de exibicao
+- projecao atual
 
 Tambem existe o botao `Carregar exemplo`, que usa `samples/cube.obj` e
 `samples/cube.mtl`.
+
+## Renderizacao
+
+A etapa 3 desenha a `Mesh` montada na etapa anterior em um canvas 2D. A
+projecao inicial e isometrica; a tecla `P` alterna para perspectiva e volta para
+isometrica. A tecla `W` ativa wireframe e a tecla `S` volta ao modo solido.
+
+No modo solido, cada face usa a cor `Kd` do material MTL quando disponivel. O
+renderizador aplica backface culling pela componente `Z` da normal em espaco de
+camera e calcula iluminacao simples por face com uma luz direcional fixa.
 
 ## Montagem da malha
 

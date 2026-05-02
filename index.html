@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Montagem de Malha OBJ/MTL</title>
+    <title>Renderizacao OBJ/MTL</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -11,8 +11,8 @@
       <section class="panel">
         <div class="header">
           <div>
-            <p class="eyebrow">Etapa 2</p>
-            <h1>Montagem de malha OBJ/MTL</h1>
+            <p class="eyebrow">Etapa 3</p>
+            <h1>Renderizacao OBJ/MTL</h1>
           </div>
           <button id="loadSample" type="button">Carregar exemplo</button>
         </div>
@@ -32,6 +32,40 @@
         <div id="message" class="message" role="status">
           Selecione um .obj para ver as estatisticas do modelo.
         </div>
+      </section>
+
+      <section class="viewer" aria-label="Visualizador 3D">
+        <div class="viewer-toolbar">
+          <div class="viewer-status">
+            <span>Modelo <strong id="loadedModelName">Nenhum</strong></span>
+            <span>Modo <strong id="displayModeValue">Solido</strong></span>
+            <span>Projecao <strong id="projectionValue">Isometrica</strong></span>
+          </div>
+
+          <div class="viewer-controls" aria-label="Controles de renderizacao">
+            <button id="toggleProjection" type="button">Perspectiva</button>
+            <button
+              class="is-active"
+              type="button"
+              data-display-mode="solid"
+              aria-pressed="true"
+            >
+              Solido
+            </button>
+            <button type="button" data-display-mode="wireframe" aria-pressed="false">
+              Wireframe
+            </button>
+            <button
+              type="button"
+              data-display-mode="solid-wireframe"
+              aria-pressed="false"
+            >
+              Solido + arestas
+            </button>
+          </div>
+        </div>
+
+        <canvas id="viewerCanvas" width="960" height="540"></canvas>
       </section>
 
       <section class="stats-grid" aria-label="Estatisticas do modelo">
