@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Parser OBJ/MTL</title>
+    <title>Montagem de Malha OBJ/MTL</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -11,8 +11,8 @@
       <section class="panel">
         <div class="header">
           <div>
-            <p class="eyebrow">Etapa 1</p>
-            <h1>Parser OBJ/MTL</h1>
+            <p class="eyebrow">Etapa 2</p>
+            <h1>Montagem de malha OBJ/MTL</h1>
           </div>
           <button id="loadSample" type="button">Carregar exemplo</button>
         </div>
@@ -51,6 +51,10 @@
           <span>V - E + F</span>
           <strong id="eulerValue">0</strong>
         </article>
+        <article class="stat">
+          <span>Triangulos</span>
+          <strong id="triangleCount">0</strong>
+        </article>
       </section>
 
       <section class="details">
@@ -65,6 +69,10 @@
         <div>
           <h2>Referencias MTL</h2>
           <p id="mtllibInfo">Nenhum mtllib encontrado.</p>
+        </div>
+        <div>
+          <h2>Malha renderizavel</h2>
+          <p id="meshInfo">Nenhuma malha montada.</p>
         </div>
         <div>
           <h2>Avisos</h2>

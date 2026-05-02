@@ -1,5 +1,10 @@
 import { parseMTL } from "./parsers/mtlParser.js";
 import { parseOBJ } from "./parsers/objParser.js";
+import { buildRenderableMesh } from "./geometry/mesh.js";
+import {
+  calculateBoundingBoxCenter,
+  calculateBoundingBoxSize,
+} from "./math/boundingBox.js";
 import { calculateTopology } from "./utils/topology.js";
 
 const objInput = document.querySelector("#objInput");
@@ -10,9 +15,11 @@ const vertexCount = document.querySelector("#vertexCount");
 const faceCount = document.querySelector("#faceCount");
 const edgeCount = document.querySelector("#edgeCount");
 const eulerValue = document.querySelector("#eulerValue");
+const triangleCount = document.querySelector("#triangleCount");
 const eulerStatus = document.querySelector("#eulerStatus");
 const materialInfo = document.querySelector("#materialInfo");
 const mtllibInfo = document.querySelector("#mtllibInfo");
+const meshInfo = document.querySelector("#meshInfo");
 const warnings = document.querySelector("#warnings");
 
 objInput.addEventListener("change", loadSelectedFiles);
@@ -74,6 +81,7 @@ async function parseSelectedMTLFiles(files) {
 
 function renderModelSummary(model, fileName) {
   const topology = calculateTopology(model);
+  const mesh = buildRenderableMesh(model);
   const usedMaterials = new Set(
     model.faces.map((face) => face.materialName).filter(Boolean),
   );
@@ -82,6 +90,7 @@ function renderModelSummary(model, fileName) {
   faceCount.textContent = String(topology.faceCount);
   edgeCount.textContent = String(topology.edgeCount);
   eulerValue.textContent = String(topology.eulerCharacteristic);
+  triangleCount.textContent = String(mesh.triangleCount);
 
   eulerStatus.textContent = topology.isEulerCharacteristicTwo
     ? "Resultado igual a 2. O modelo pode ser uma malha fechada simples."
@@ -96,6 +105,16 @@ function renderModelSummary(model, fileName) {
     model.mtllibs.length > 0
       ? model.mtllibs.join(", ")
       : "Nenhum mtllib encontrado.";
+
+  meshInfo.textContent = formatMeshInfo(mesh);
+  console.debug("Mesh debug", {
+    triangleCount: mesh.triangleCount,
+    renderVertexCount: mesh.renderVertexCount,
+    center: mesh.center,
+    scale: mesh.scale,
+    boundingBox: mesh.boundingBox,
+    generatedNormalCount: mesh.generatedNormalCount,
+  });
 
   renderWarnings(model.warnings);
   message.textContent = `Arquivo carregado: ${fileName}`;
@@ -123,9 +142,41 @@ function resetUI(text) {
   faceCount.textContent = "0";
   edgeCount.textContent = "0";
   eulerValue.textContent = "0";
+  triangleCount.textContent = "0";
   eulerStatus.textContent = "Aguardando arquivo.";
   materialInfo.textContent = "Nenhum material carregado.";
   mtllibInfo.textContent = "Nenhum mtllib encontrado.";
+  meshInfo.textContent = "Nenhuma malha montada.";
   warnings.replaceChildren();
   message.textContent = text;
+}
+
+function formatMeshInfo(mesh) {
+  const finalCenter = calculateBoundingBoxCenter(mesh.boundingBox);
+  const finalSize = calculateBoundingBoxSize(mesh.boundingBox);
+  const normalSummary =
+    mesh.generatedNormalCount > 0
+      ? `${mesh.generatedNormalCount} normal(is) gerada(s).`
+      : "Normais do arquivo preservadas.";
+
+  return [
+    `${mesh.triangleCount} triangulo(s) renderizavel(is).`,
+    `Centro final ${formatVector(finalCenter)}.`,
+    `Escala ${formatNumber(mesh.scale)}; tamanho final ${formatVector(finalSize)}.`,
+    normalSummary,
+  ].join(" ");
+}
+
+function formatVector(vector) {
+  return `(${formatNumber(vector.x)}, ${formatNumber(vector.y)}, ${formatNumber(
+    vector.z,
+  )})`;
+}
+
+function formatNumber(value) {
+  if (Math.abs(value) < 1e-9) {
+    return "0";
+  }
+
+  return value.toFixed(3).replace(/\.?0+$/, "");
 }
