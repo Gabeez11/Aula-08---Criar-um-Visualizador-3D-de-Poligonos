@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Parser OBJ/MTL</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="panel">
+        <div class="header">
+          <div>
+            <p class="eyebrow">Etapa 1</p>
+            <h1>Parser OBJ/MTL</h1>
+          </div>
+          <button id="loadSample" type="button">Carregar exemplo</button>
+        </div>
+
+        <form class="loader" id="fileForm">
+          <label>
+            Arquivo OBJ
+            <input id="objInput" type="file" accept=".obj" />
+          </label>
+
+          <label>
+            Arquivo MTL opcional
+            <input id="mtlInput" type="file" accept=".mtl" multiple />
+          </label>
+        </form>
+
+        <div id="message" class="message" role="status">
+          Selecione um .obj para ver as estatisticas do modelo.
+        </div>
+      </section>
+
+      <section class="stats-grid" aria-label="Estatisticas do modelo">
+        <article class="stat">
+          <span>Vertices (V)</span>
+          <strong id="vertexCount">0</strong>
+        </article>
+        <article class="stat">
+          <span>Faces (F)</span>
+          <strong id="faceCount">0</strong>
+        </article>
+        <article class="stat">
+          <span>Arestas aprox. (E)</span>
+          <strong id="edgeCount">0</strong>
+        </article>
+        <article class="stat">
+          <span>V - E + F</span>
+          <strong id="eulerValue">0</strong>
+        </article>
+      </section>
+
+      <section class="details">
+        <div>
+          <h2>Resultado</h2>
+          <p id="eulerStatus">Aguardando arquivo.</p>
+        </div>
+        <div>
+          <h2>Materiais</h2>
+          <p id="materialInfo">Nenhum material carregado.</p>
+        </div>
+        <div>
+          <h2>Referencias MTL</h2>
+          <p id="mtllibInfo">Nenhum mtllib encontrado.</p>
+        </div>
+        <div>
+          <h2>Avisos</h2>
+          <ul id="warnings"></ul>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./src/main.js"></script>
+  </body>
+</html>

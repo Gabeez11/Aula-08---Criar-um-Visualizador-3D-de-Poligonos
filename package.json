@@ -1,0 +1,10 @@
+{
+  "name": "visualizador-3d-poligonos",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node tools/server.js",
+    "test": "node --test"
+  }
+}

@@ -1,0 +1,174 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  background: #f6f7f9;
+  color: #1f2328;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  border: 1px solid #1f2328;
+  border-radius: 6px;
+  background: #1f2328;
+  color: #ffffff;
+  cursor: pointer;
+  min-height: 40px;
+  padding: 0 14px;
+}
+
+button:hover {
+  background: #343942;
+}
+
+.app {
+  width: min(1080px, calc(100% - 32px));
+  margin: 32px auto;
+}
+
+.panel,
+.details {
+  background: #ffffff;
+  border: 1px solid #d8dee4;
+  border-radius: 8px;
+  padding: 24px;
+}
+
+.header {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.eyebrow {
+  color: #57606a;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  font-size: clamp(2rem, 4vw, 3.2rem);
+  line-height: 1;
+  margin-bottom: 0;
+}
+
+h2 {
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+
+.loader {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 24px;
+}
+
+label {
+  color: #24292f;
+  display: grid;
+  font-weight: 650;
+  gap: 8px;
+}
+
+input[type="file"] {
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  min-height: 42px;
+  padding: 8px;
+}
+
+.message {
+  background: #fff8c5;
+  border: 1px solid #eac54f;
+  border-radius: 6px;
+  color: #4d3800;
+  margin-top: 18px;
+  padding: 12px 14px;
+}
+
+.stats-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 18px 0;
+}
+
+.stat {
+  background: #ffffff;
+  border: 1px solid #d8dee4;
+  border-radius: 8px;
+  display: grid;
+  gap: 8px;
+  min-height: 112px;
+  padding: 18px;
+}
+
+.stat span {
+  color: #57606a;
+  font-size: 0.9rem;
+}
+
+.stat strong {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.details {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.details p {
+  color: #57606a;
+  margin-bottom: 0;
+}
+
+.details ul {
+  color: #57606a;
+  margin: 0;
+  padding-left: 20px;
+}
+
+@media (max-width: 760px) {
+  .app {
+    width: min(100% - 20px, 1080px);
+    margin: 16px auto;
+  }
+
+  .header,
+  .loader,
+  .stats-grid,
+  .details {
+    grid-template-columns: 1fr;
+  }
+
+  .header {
+    align-items: stretch;
+    display: grid;
+  }
+}
