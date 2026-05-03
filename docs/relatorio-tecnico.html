@@ -1,0 +1,587 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Relatorio Tecnico - Visualizador 3D de Poligonos</title>
+    <style>
+      @page {
+        size: A4;
+        margin: 16mm;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background: #e8edf3;
+        color: #17202a;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 10.8pt;
+        line-height: 1.42;
+        margin: 0;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        color: #0f172a;
+        font-size: 24pt;
+        line-height: 1.08;
+        margin-bottom: 10mm;
+      }
+
+      h2 {
+        border-bottom: 1px solid #ccd5e1;
+        color: #0f172a;
+        font-size: 15pt;
+        margin-bottom: 4mm;
+        padding-bottom: 2mm;
+      }
+
+      h3 {
+        color: #1f2937;
+        font-size: 11.5pt;
+        margin-bottom: 2mm;
+      }
+
+      p {
+        margin-bottom: 3.2mm;
+      }
+
+      ul {
+        margin: 0 0 3.5mm 5mm;
+        padding: 0;
+      }
+
+      li {
+        margin-bottom: 1.8mm;
+      }
+
+      code {
+        background: #eef2f7;
+        border-radius: 3px;
+        color: #0f172a;
+        font-family: Consolas, "Courier New", monospace;
+        font-size: 9.2pt;
+        padding: 0 2px;
+      }
+
+      .page {
+        background: #ffffff;
+        box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+        height: 265mm;
+        margin: 0 auto 12mm;
+        overflow: hidden;
+        padding: 0;
+        position: relative;
+        width: 178mm;
+      }
+
+      .page-inner {
+        height: 100%;
+        padding: 7mm 0 10mm;
+      }
+
+      .page-break {
+        break-after: page;
+        page-break-after: always;
+      }
+
+      .cover {
+        display: grid;
+        grid-template-rows: 1fr auto;
+      }
+
+      .cover-block {
+        align-self: center;
+      }
+
+      .eyebrow {
+        color: #475569;
+        font-size: 9pt;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        margin-bottom: 3mm;
+        text-transform: uppercase;
+      }
+
+      .subtitle {
+        color: #334155;
+        font-size: 12pt;
+        max-width: 145mm;
+      }
+
+      .meta-grid {
+        display: grid;
+        gap: 3mm;
+        grid-template-columns: 1fr 1fr;
+        margin-top: 10mm;
+      }
+
+      .meta-card,
+      .note,
+      .metric {
+        background: #f8fafc;
+        border: 1px solid #d8e0ea;
+        border-radius: 5px;
+        padding: 4mm;
+      }
+
+      .meta-card strong,
+      .metric strong {
+        display: block;
+        font-size: 9pt;
+        text-transform: uppercase;
+      }
+
+      .footer {
+        border-top: 1px solid #ccd5e1;
+        bottom: 0;
+        color: #64748b;
+        font-size: 8.8pt;
+        left: 0;
+        padding-top: 3mm;
+        position: absolute;
+        right: 0;
+      }
+
+      .cols {
+        display: grid;
+        gap: 5mm;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .metrics {
+        display: grid;
+        gap: 2.5mm;
+        grid-template-columns: repeat(2, 1fr);
+        margin: 3mm 0 5mm;
+      }
+
+      .table {
+        border-collapse: collapse;
+        margin: 2mm 0 4mm;
+        width: 100%;
+      }
+
+      .table th,
+      .table td {
+        border: 1px solid #d8e0ea;
+        padding: 2mm 2.2mm;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      .table th {
+        background: #eef2f7;
+      }
+
+      .diagram {
+        border: 1px solid #d8e0ea;
+        border-radius: 6px;
+        margin: 3mm 0 5mm;
+        overflow: hidden;
+      }
+
+      .diagram svg {
+        display: block;
+        width: 100%;
+      }
+
+      .small {
+        color: #475569;
+        font-size: 9.4pt;
+      }
+
+      @media print {
+        body {
+          background: #ffffff;
+        }
+
+        .page {
+          box-shadow: none;
+          height: auto;
+          margin: 0;
+          overflow: visible;
+          width: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <section class="page page-break">
+      <div class="page-inner cover">
+        <div class="cover-block">
+          <p class="eyebrow">Relatorio tecnico</p>
+          <h1>Visualizador 3D de Poligonos</h1>
+          <p class="subtitle">
+            Trabalho academico de Computacao Grafica: leitura de modelos OBJ/MTL,
+            montagem de malha renderizavel, renderizacao em canvas e transformacoes
+            3D em tempo real.
+          </p>
+
+          <div class="meta-grid">
+            <div class="meta-card">
+              <strong>Grupo</strong>
+              Rafael Reis, Gabriel Drews, Arthur Schirmer e Felipe Santos
+            </div>
+            <div class="meta-card">
+              <strong>Repositorio</strong>
+              Aula-08---Criar-um-Visualizador-3D-de-Poligonos
+            </div>
+            <div class="meta-card">
+              <strong>Ambiente</strong>
+              HTML, CSS, JavaScript ES Modules e Node.js para servidor/testes
+            </div>
+            <div class="meta-card">
+              <strong>IA utilizada</strong>
+              ChatGPT 5.5 e minimax-m2.5
+            </div>
+          </div>
+        </div>
+
+        <div class="footer">
+          Pagina 1 de 5 - Relatorio tecnico do visualizador 3D
+        </div>
+      </div>
+    </section>
+
+    <section class="page page-break">
+      <div class="page-inner">
+        <h2>1. Visao geral e escopo</h2>
+        <p>
+          O sistema desenvolvido e um visualizador interativo de modelos 3D
+          carregados a partir de arquivos <code>.obj</code> e <code>.mtl</code>.
+          A aplicacao roda diretamente no navegador, com uma pagina HTML que permite
+          carregar arquivos locais ou escolher quatro modelos prontos usados na
+          apresentacao: cubo, piramide, octaedro e cilindro octogonal.
+        </p>
+        <p>
+          O projeto foi organizado para refletir as quatro etapas do trabalho:
+          parser, montagem da geometria, renderizacao e transformacoes 3D. Essa
+          separacao evita que a leitura de arquivo, a estrutura da malha e o desenho
+          em tela fiquem misturados no mesmo modulo.
+        </p>
+
+        <div class="metrics">
+          <div class="metric">
+            <strong>Entrada</strong>
+            OBJ com vertices, UVs, normais, faces, <code>mtllib</code> e <code>usemtl</code>
+          </div>
+          <div class="metric">
+            <strong>Saida visual</strong>
+            Canvas 2D com modo solido, wireframe ou solido com arestas
+          </div>
+          <div class="metric">
+            <strong>Transformacoes</strong>
+            Escala, rotacao e translacao por matriz de modelo
+          </div>
+          <div class="metric">
+            <strong>Validacao</strong>
+            Testes automatizados com <code>node:test</code>
+          </div>
+        </div>
+
+        <h2>2. Biblioteca escolhida e justificativa</h2>
+        <p>
+          A biblioteca principal escolhida para a visualizacao foi a API nativa
+          <code>CanvasRenderingContext2D</code> do navegador. A decisao foi manter a
+          renderizacao sem bibliotecas externas como Three.js ou Babylon.js, porque o
+          objetivo academico era explicitar as etapas de computacao grafica: parser,
+          triangulacao, normalizacao da geometria, projecao, culling, iluminacao
+          simples e transformacoes por matrizes.
+        </p>
+        <p>
+          O Node.js foi usado apenas como apoio de desenvolvimento: ele fornece um
+          servidor estatico simples em <code>tools/server.js</code> e executa a suite
+          de testes. Essa escolha reduz dependencias, facilita a execucao em sala e
+          deixa o comportamento do visualizador concentrado no codigo do projeto.
+        </p>
+
+        <div class="footer">
+          Pagina 2 de 5 - Escopo, modelos e decisao de biblioteca
+        </div>
+      </div>
+    </section>
+
+    <section class="page page-break">
+      <div class="page-inner">
+        <h2>3. Arquitetura do codigo</h2>
+        <p>
+          A arquitetura segue um fluxo de dados simples. O arquivo OBJ e parseado
+          para um <code>OBJModel</code>, o modelo e convertido para uma <code>Mesh</code>
+          renderizavel e, em seguida, o renderizador transforma os vertices para
+          espaco de camera, projeta para 2D e desenha no canvas.
+        </p>
+
+        <div class="diagram">
+          <svg viewBox="0 0 960 520" xmlns="http://www.w3.org/2000/svg" role="img">
+            <defs>
+              <marker id="arrow" markerHeight="10" markerWidth="10" orient="auto" refX="9" refY="3">
+                <path d="M0,0 L0,6 L9,3 z" fill="#334155" />
+              </marker>
+              <style>
+                .box { fill: #f8fafc; stroke: #94a3b8; stroke-width: 2; }
+                .main { fill: #dbeafe; stroke: #2563eb; }
+                .render { fill: #dcfce7; stroke: #16a34a; }
+                .math { fill: #fef3c7; stroke: #d97706; }
+                .text { font: 18px Arial, sans-serif; fill: #0f172a; font-weight: 700; }
+                .small { font: 14px Arial, sans-serif; fill: #334155; }
+                .line { stroke: #334155; stroke-width: 2; marker-end: url(#arrow); }
+              </style>
+            </defs>
+
+            <rect x="50" y="55" width="180" height="82" rx="10" class="box" />
+            <text x="75" y="88" class="text">Arquivos</text>
+            <text x="75" y="113" class="small">.obj / .mtl / samples</text>
+
+            <rect x="300" y="40" width="210" height="112" rx="10" class="box" />
+            <text x="325" y="76" class="text">parsers/</text>
+            <text x="325" y="101" class="small">objParser.js</text>
+            <text x="325" y="124" class="small">mtlParser.js</text>
+
+            <rect x="585" y="40" width="220" height="112" rx="10" class="box" />
+            <text x="610" y="76" class="text">models.js</text>
+            <text x="610" y="101" class="small">OBJModel, Face,</text>
+            <text x="610" y="124" class="small">Material, Vertex</text>
+
+            <rect x="300" y="220" width="210" height="118" rx="10" class="box main" />
+            <text x="325" y="256" class="text">geometry/mesh.js</text>
+            <text x="325" y="281" class="small">Mesh, Triangle,</text>
+            <text x="325" y="304" class="small">RenderVertex</text>
+
+            <rect x="50" y="220" width="180" height="118" rx="10" class="box math" />
+            <text x="75" y="256" class="text">math/</text>
+            <text x="75" y="281" class="small">vector3.js</text>
+            <text x="75" y="304" class="small">matrix4.js</text>
+            <text x="75" y="327" class="small">boundingBox.js</text>
+
+            <rect x="585" y="220" width="220" height="118" rx="10" class="box render" />
+            <text x="610" y="256" class="text">rendering/</text>
+            <text x="610" y="281" class="small">CanvasRenderer</text>
+            <text x="610" y="304" class="small">projecao e desenho</text>
+
+            <rect x="300" y="405" width="210" height="82" rx="10" class="box" />
+            <text x="325" y="438" class="text">main.js</text>
+            <text x="325" y="463" class="small">UI, eventos e estado</text>
+
+            <rect x="585" y="405" width="220" height="82" rx="10" class="box" />
+            <text x="610" y="438" class="text">Canvas HTML</text>
+            <text x="610" y="463" class="small">visualizacao final</text>
+
+            <line x1="230" y1="96" x2="300" y2="96" class="line" />
+            <line x1="510" y1="96" x2="585" y2="96" class="line" />
+            <line x1="695" y1="152" x2="695" y2="220" class="line" />
+            <line x1="585" y1="278" x2="510" y2="278" class="line" />
+            <line x1="230" y1="278" x2="300" y2="278" class="line" />
+            <line x1="405" y1="338" x2="405" y2="405" class="line" />
+            <line x1="510" y1="446" x2="585" y2="446" class="line" />
+            <line x1="510" y1="279" x2="585" y2="279" class="line" />
+          </svg>
+        </div>
+
+        <h3>Responsabilidades principais</h3>
+        <ul>
+          <li><code>parsers/</code>: leitura linha a linha do OBJ/MTL e conversao para estruturas internas.</li>
+          <li><code>geometry/mesh.js</code>: triangulacao, normalizacao, centro, escala e normais.</li>
+          <li><code>math/</code>: vetores, produto vetorial, bounding box e matrizes 4x4.</li>
+          <li><code>rendering/renderer.js</code>: culling, projecao, iluminacao simples e desenho no canvas.</li>
+          <li><code>main.js</code>: carregamento, botoes, teclado, mouse e atualizacao dos indicadores da tela.</li>
+        </ul>
+
+        <div class="footer">
+          Pagina 3 de 5 - Diagrama de arquitetura do codigo
+        </div>
+      </div>
+    </section>
+
+    <section class="page page-break">
+      <div class="page-inner">
+        <h2>4. Decisoes tecnicas</h2>
+        <div class="cols">
+          <div>
+            <h3>Parser OBJ/MTL</h3>
+            <p>
+              O parser interpreta vertices (<code>v</code>), coordenadas UV
+              (<code>vt</code>), normais (<code>vn</code>), faces (<code>f</code>),
+              referencias <code>mtllib</code> e troca de material por
+              <code>usemtl</code>. Os indices do OBJ sao convertidos para indices
+              zero-based, simplificando o acesso aos arrays em JavaScript.
+            </p>
+            <h3>Montagem da malha</h3>
+            <p>
+              Faces com quatro ou mais vertices sao trianguladas por fan
+              triangulation. A face <code>[0, 1, 2, 3]</code>, por exemplo, gera os
+              triangulos <code>[0, 1, 2]</code> e <code>[0, 2, 3]</code>. O material
+              da face original e preservado em cada triangulo.
+            </p>
+          </div>
+          <div>
+            <h3>Normalizacao</h3>
+            <p>
+              A geometria e centralizada pela bounding box e escalada para caber em
+              um intervalo normalizado. Isso permite carregar modelos com tamanhos
+              diferentes sem perder o enquadramento inicial.
+            </p>
+            <h3>Normais</h3>
+            <p>
+              Quando o arquivo nao possui normais, o sistema calcula uma normal por
+              face usando o produto vetorial <code>(V1 - V0) x (V2 - V0)</code> e
+              normaliza o resultado. Normais existentes no OBJ sao preservadas e
+              tambem normalizadas.
+            </p>
+          </div>
+        </div>
+
+        <h3>Renderizacao e interacao</h3>
+        <p>
+          O renderizador trabalha com um pipeline simples: aplica matriz de modelo,
+          converte para uma camera isometrica, remove faces traseiras pela normal em
+          espaco de camera, calcula uma intensidade de luz direcional e desenha os
+          triangulos. A profundidade media de cada triangulo e usada para ordenar o
+          desenho.
+        </p>
+        <p>
+          A matriz de modelo e composta a partir de translacao, rotacoes X/Y/Z e
+          escala uniforme. Os comandos de teclado escolhem a ferramenta ativa, e os
+          valores atuais aparecem na interface para facilitar a demonstracao no video.
+        </p>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Recurso</th>
+              <th>Implementacao</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Wireframe</td>
+              <td>Desenho das arestas visiveis de cada triangulo.</td>
+            </tr>
+            <tr>
+              <td>Solido</td>
+              <td>Preenchimento por triangulo com cor <code>Kd</code> do MTL.</td>
+            </tr>
+            <tr>
+              <td>Projecao</td>
+              <td>Alternancia entre isometrica e perspectiva.</td>
+            </tr>
+            <tr>
+              <td>Transformacoes</td>
+              <td>Matrizes 4x4 aplicadas antes da camera e da projecao.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="footer">
+          Pagina 4 de 5 - Decisoes de parser, geometria, renderizacao e transformacao
+        </div>
+      </div>
+    </section>
+
+    <section class="page">
+      <div class="page-inner">
+        <h2>5. Dificuldades e solucoes adotadas</h2>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Dificuldade</th>
+              <th>Solucao adotada</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>OBJ permite faces com mais de tres vertices.</td>
+              <td>Conversao para triangulos por fan triangulation antes da renderizacao.</td>
+            </tr>
+            <tr>
+              <td>Modelos podem vir deslocados ou em escalas diferentes.</td>
+              <td>Calculo de bounding box, centro geometrico e escala normalizada.</td>
+            </tr>
+            <tr>
+              <td>Alguns arquivos podem nao possuir normais.</td>
+              <td>Geracao de normais por face com produto vetorial e normalizacao.</td>
+            </tr>
+            <tr>
+              <td>Visualizar solido sem WebGL exige ordenar faces e descartar costas.</td>
+              <td>Backface culling por normal em camera e ordenacao por profundidade media.</td>
+            </tr>
+            <tr>
+              <td>Demonstrar quatro modelos diferentes sem depender de busca externa.</td>
+              <td>Inclusao de cubo, piramide, octaedro e cilindro como samples locais.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>6. Testes e validacao</h2>
+        <p>
+          A suite de testes usa <code>node:test</code> e valida parser, topologia,
+          montagem de malha, renderizacao e os modelos de apresentacao. Os testes
+          verificam leitura de vertices, UVs, normais e materiais; resolucao de
+          indices negativos; triangulacao; centralizacao; escala normalizada; geracao
+          de normais; projecao em perspectiva; e carregamento dos quatro samples.
+        </p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Modelo</th>
+              <th>Vertices</th>
+              <th>Faces</th>
+              <th>Triangulos</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cubo</td>
+              <td>8</td>
+              <td>6</td>
+              <td>12</td>
+            </tr>
+            <tr>
+              <td>Piramide</td>
+              <td>5</td>
+              <td>5</td>
+              <td>6</td>
+            </tr>
+            <tr>
+              <td>Octaedro</td>
+              <td>6</td>
+              <td>8</td>
+              <td>8</td>
+            </tr>
+            <tr>
+              <td>Cilindro octogonal</td>
+              <td>16</td>
+              <td>10</td>
+              <td>28</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h2>7. Conclusao</h2>
+        <p>
+          O visualizador atende ao objetivo do trabalho ao expor o fluxo completo de
+          um modelo 3D simples: leitura, organizacao da malha, renderizacao e
+          transformacao interativa. A escolha por Canvas 2D e JavaScript puro
+          favoreceu a compreensao das operacoes matematicas e manteve o projeto
+          portavel para apresentacao em sala.
+        </p>
+
+        <p class="small">
+          Ferramentas de IA utilizadas: ChatGPT 5.5 e minimax-m2.5.
+        </p>
+
+        <div class="footer">
+          Pagina 5 de 5 - Dificuldades, validacao e conclusao
+        </div>
+      </div>
+    </section>
+  </body>
+</html>

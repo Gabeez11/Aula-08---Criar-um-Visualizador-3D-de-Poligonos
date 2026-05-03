@@ -24,6 +24,11 @@ Abra `http://localhost:5173` no navegador.
 npm test
 ```
 
+## Relatorio tecnico
+
+O relatorio tecnico da entrega esta em `docs/relatorio-tecnico.pdf`. O arquivo
+`docs/relatorio-tecnico.html` e a versao fonte usada para gerar o PDF.
+
 ## Como carregar modelos
 
 Na tela inicial, carregue um arquivo `.obj` e, se houver, um ou mais arquivos
