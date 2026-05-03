@@ -11,6 +11,26 @@ import {
   PROJECTIONS,
 } from "./rendering/renderer.js";
 import { calculateTopology } from "./utils/topology.js";
+import {
+  createIdentityMatrix,
+  createScaleMatrix,
+  createRotationXMatrix,
+  createRotationYMatrix,
+  createRotationZMatrix,
+  createTranslationMatrix,
+  multiplyMatrices,
+} from "./math/matrix4.js";
+
+const ROTATION_INCREMENT = Math.PI / 18;
+const SCALE_INCREMENT = 0.1;
+const TRANSLATION_INCREMENT = 0.1;
+
+export const TOOLS = Object.freeze({
+  NONE: "none",
+  SCALE: "scale",
+  ROTATION: "rotation",
+  TRANSLATION: "translation",
+});
 
 const objInput = document.querySelector("#objInput");
 const mtlInput = document.querySelector("#mtlInput");
@@ -32,10 +52,26 @@ const displayModeValue = document.querySelector("#displayModeValue");
 const projectionValue = document.querySelector("#projectionValue");
 const projectionButton = document.querySelector("#toggleProjection");
 const displayModeButtons = document.querySelectorAll("[data-display-mode]");
+const toolValue = document.querySelector("#toolValue");
+const transformInfo = document.querySelector("#transformInfo");
+const creditsInfo = document.querySelector("#creditsInfo");
 
 const renderer = new CanvasRenderer(viewerCanvas);
 let currentMesh = null;
 let pendingRedraw = null;
+
+let currentTool = TOOLS.NONE;
+let currentScale = 1;
+let currentRotationX = 0;
+let currentRotationY = 0;
+let currentRotationZ = 0;
+let currentTranslationX = 0;
+let currentTranslationY = 0;
+let currentTranslationZ = 0;
+
+let isMouseDragging = false;
+let lastMouseX = 0;
+let lastMouseY = 0;
 
 objInput.addEventListener("change", loadSelectedFiles);
 mtlInput.addEventListener("change", loadSelectedFiles);
@@ -46,6 +82,11 @@ displayModeButtons.forEach((button) => {
 });
 document.addEventListener("keydown", handleKeyboardShortcut);
 window.addEventListener("resize", redraw);
+
+viewerCanvas.addEventListener("mousedown", handleMouseDown);
+viewerCanvas.addEventListener("mousemove", handleMouseMove);
+viewerCanvas.addEventListener("mouseup", handleMouseUp);
+viewerCanvas.addEventListener("mouseleave", handleMouseUp);
 
 updateRendererStatus();
 redraw();
@@ -241,15 +282,113 @@ function handleKeyboardShortcut(event) {
     return;
   }
 
-  if (key === "w") {
+  if (key === "m") {
     event.preventDefault();
-    setDisplayMode(DISPLAY_MODES.WIREFRAME);
+    const modes = [DISPLAY_MODES.SOLID, DISPLAY_MODES.WIREFRAME, DISPLAY_MODES.SOLID_WIREFRAME];
+    const currentIndex = modes.indexOf(renderer.displayMode);
+    const nextIndex = (currentIndex + 1) % modes.length;
+    setDisplayMode(modes[nextIndex]);
     return;
   }
 
   if (key === "s") {
     event.preventDefault();
-    setDisplayMode(DISPLAY_MODES.SOLID);
+    if (currentTool === TOOLS.SCALE) {
+      setTool(TOOLS.NONE);
+    } else {
+      setTool(TOOLS.SCALE);
+    }
+    return;
+  }
+
+  if (key === "r") {
+    event.preventDefault();
+    if (currentTool === TOOLS.ROTATION) {
+      setTool(TOOLS.NONE);
+    } else {
+      setTool(TOOLS.ROTATION);
+    }
+    return;
+  }
+
+  if (key === "t") {
+    event.preventDefault();
+    if (currentTool === TOOLS.TRANSLATION) {
+      setTool(TOOLS.NONE);
+    } else {
+      setTool(TOOLS.TRANSLATION);
+    }
+    return;
+  }
+
+  if (key === "escape") {
+    event.preventDefault();
+    resetTransforms();
+    return;
+  }
+
+  if (currentTool === TOOLS.SCALE) {
+    if (key === "arrowup" || key === "=") {
+      event.preventDefault();
+      applyScale(SCALE_INCREMENT);
+      return;
+    }
+    if (key === "arrowdown" || key === "-") {
+      event.preventDefault();
+      applyScale(-SCALE_INCREMENT);
+      return;
+    }
+  }
+
+  if (currentTool === TOOLS.ROTATION) {
+    if (key === "x") {
+      event.preventDefault();
+      applyRotationX(ROTATION_INCREMENT);
+      return;
+    }
+    if (key === "y") {
+      event.preventDefault();
+      applyRotationY(ROTATION_INCREMENT);
+      return;
+    }
+    if (key === "z") {
+      event.preventDefault();
+      applyRotationZ(ROTATION_INCREMENT);
+      return;
+    }
+  }
+
+  if (currentTool === TOOLS.TRANSLATION) {
+    if (key === "arrowleft") {
+      event.preventDefault();
+      applyTranslation(-TRANSLATION_INCREMENT, 0, 0);
+      return;
+    }
+    if (key === "arrowright") {
+      event.preventDefault();
+      applyTranslation(TRANSLATION_INCREMENT, 0, 0);
+      return;
+    }
+    if (key === "arrowup") {
+      event.preventDefault();
+      applyTranslation(0, TRANSLATION_INCREMENT, 0);
+      return;
+    }
+    if (key === "arrowdown") {
+      event.preventDefault();
+      applyTranslation(0, -TRANSLATION_INCREMENT, 0);
+      return;
+    }
+    if (key === "q") {
+      event.preventDefault();
+      applyTranslation(0, 0, TRANSLATION_INCREMENT);
+      return;
+    }
+    if (key === "e") {
+      event.preventDefault();
+      applyTranslation(0, 0, -TRANSLATION_INCREMENT);
+      return;
+    }
   }
 }
 
@@ -261,11 +400,124 @@ function updateRendererStatus() {
       ? "Perspectiva"
       : "Isometrica";
 
+  toolValue.textContent = formatTool(currentTool);
+
+  updateTransformInfo();
+
   displayModeButtons.forEach((button) => {
     const isActive = button.dataset.displayMode === renderer.displayMode;
     button.classList.toggle("is-active", isActive);
     button.setAttribute("aria-pressed", String(isActive));
   });
+}
+
+function formatTool(tool) {
+  const labels = {
+    [TOOLS.NONE]: "Nenhuma",
+    [TOOLS.SCALE]: "Escala",
+    [TOOLS.ROTATION]: "Rotacao",
+    [TOOLS.TRANSLATION]: "Translacao",
+  };
+  return labels[tool] ?? tool;
+}
+
+function updateTransformInfo() {
+  transformInfo.textContent = `Escala: ${currentScale.toFixed(2)} Rot: (${formatNumber(currentRotationX)}, ${formatNumber(currentRotationY)}, ${formatNumber(currentRotationZ)}) Trans: (${formatNumber(currentTranslationX)}, ${formatNumber(currentTranslationY)}, ${formatNumber(currentTranslationZ)})`;
+}
+
+function setTool(tool) {
+  currentTool = tool;
+  updateRendererStatus();
+}
+
+function applyScale(delta) {
+  currentScale = Math.max(0.1, currentScale + delta);
+  updateModelMatrix();
+}
+
+function applyRotationX(delta) {
+  currentRotationX += delta;
+  updateModelMatrix();
+}
+
+function applyRotationY(delta) {
+  currentRotationY += delta;
+  updateModelMatrix();
+}
+
+function applyRotationZ(delta) {
+  currentRotationZ += delta;
+  updateModelMatrix();
+}
+
+function applyTranslation(x, y, z) {
+  currentTranslationX += x;
+  currentTranslationY += y;
+  currentTranslationZ += z;
+  updateModelMatrix();
+}
+
+function updateModelMatrix() {
+  const translation = createTranslationMatrix(
+    currentTranslationX,
+    currentTranslationY,
+    currentTranslationZ,
+  );
+  const rotationX = createRotationXMatrix(currentRotationX);
+  const rotationY = createRotationYMatrix(currentRotationY);
+  const rotationZ = createRotationZMatrix(currentRotationZ);
+  const scale = createScaleMatrix(currentScale);
+
+  let modelMatrix = createIdentityMatrix();
+  modelMatrix = multiplyMatrices(modelMatrix, translation);
+  modelMatrix = multiplyMatrices(modelMatrix, rotationX);
+  modelMatrix = multiplyMatrices(modelMatrix, rotationY);
+  modelMatrix = multiplyMatrices(modelMatrix, rotationZ);
+  modelMatrix = multiplyMatrices(modelMatrix, scale);
+
+  renderer.setModelMatrix(modelMatrix);
+  updateTransformInfo();
+  redraw();
+}
+
+function resetTransforms() {
+  currentScale = 1;
+  currentRotationX = 0;
+  currentRotationY = 0;
+  currentRotationZ = 0;
+  currentTranslationX = 0;
+  currentTranslationY = 0;
+  currentTranslationZ = 0;
+  currentTool = TOOLS.NONE;
+  updateModelMatrix();
+  updateRendererStatus();
+}
+
+function handleMouseDown(event) {
+  if (currentTool === TOOLS.ROTATION) {
+    isMouseDragging = true;
+    lastMouseX = event.clientX;
+    lastMouseY = event.clientY;
+  }
+}
+
+function handleMouseMove(event) {
+  if (!isMouseDragging || currentTool !== TOOLS.ROTATION) {
+    return;
+  }
+
+  const deltaX = event.clientX - lastMouseX;
+  const deltaY = event.clientY - lastMouseY;
+
+  applyRotationY(deltaX * 0.01);
+  applyRotationX(deltaY * 0.01);
+
+  lastMouseX = event.clientX;
+  lastMouseY = event.clientY;
+}
+
+function handleMouseUp() {
+  isMouseDragging = false;
 }
 
 function redraw() {

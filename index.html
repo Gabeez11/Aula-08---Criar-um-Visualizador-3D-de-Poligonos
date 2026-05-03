@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Renderizacao OBJ/MTL</title>
+    <title>Visualizador 3D de Poligonos</title>
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
@@ -11,8 +11,8 @@
       <section class="panel">
         <div class="header">
           <div>
-            <p class="eyebrow">Etapa 3</p>
-            <h1>Renderizacao OBJ/MTL</h1>
+            <p class="eyebrow">Etapa 4</p>
+            <h1>Visualizador 3D de Poligonos</h1>
           </div>
           <button id="loadSample" type="button">Carregar exemplo</button>
         </div>
@@ -40,6 +40,7 @@
             <span>Modelo <strong id="loadedModelName">Nenhum</strong></span>
             <span>Modo <strong id="displayModeValue">Solido</strong></span>
             <span>Projecao <strong id="projectionValue">Isometrica</strong></span>
+            <span>Ferramenta <strong id="toolValue">Nenhuma</strong></span>
           </div>
 
           <div class="viewer-controls" aria-label="Controles de renderizacao">
@@ -89,6 +90,10 @@
           <span>Triangulos</span>
           <strong id="triangleCount">0</strong>
         </article>
+        <article class="stat">
+          <span>Transformacoes</span>
+          <strong id="transformInfo">Escala: 1.00 Rot: (0, 0, 0) Trans: (0, 0, 0)</strong>
+        </article>
       </section>
 
       <section class="details">
@@ -111,6 +116,10 @@
         <div>
           <h2>Avisos</h2>
           <ul id="warnings"></ul>
+        </div>
+        <div>
+          <h2>Creditos</h2>
+          <p id="creditsInfo">Grupo de Computacao Grafica: [Nomes dos membros]</p>
         </div>
       </section>
     </main>

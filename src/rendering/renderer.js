@@ -4,6 +4,7 @@ import {
   subtractVectors,
   vectorLength,
 } from "../math/vector3.js";
+import { createIdentityMatrix, transformPoint, transformVector } from "../math/matrix4.js";
 
 export const PROJECTIONS = Object.freeze({
   ISOMETRIC: "isometric",
@@ -33,6 +34,15 @@ export class CanvasRenderer {
     this.context = canvas.getContext("2d");
     this.projection = PROJECTIONS.ISOMETRIC;
     this.displayMode = DISPLAY_MODES.SOLID;
+    this.modelMatrix = createIdentityMatrix();
+  }
+
+  setModelMatrix(matrix) {
+    this.modelMatrix = matrix;
+  }
+
+  getModelMatrix() {
+    return this.modelMatrix;
   }
 
   setProjection(projection) {
@@ -63,6 +73,7 @@ export class CanvasRenderer {
     }
 
     const edgeVisibility = createSourceFaceEdgeVisibility(mesh);
+    const modelMatrix = this.modelMatrix;
     const triangles = mesh.triangles
       .map((triangle) =>
         createRenderableTriangle({
@@ -71,6 +82,7 @@ export class CanvasRenderer {
           height,
           projection: this.projection,
           edgeVisibility,
+          modelMatrix,
         }),
       )
       .filter(Boolean)
@@ -138,11 +150,14 @@ export function shadeMaterialColor(material, intensity) {
   return `rgb(${shaded[0]}, ${shaded[1]}, ${shaded[2]})`;
 }
 
-function createRenderableTriangle({ triangle, width, height, projection, edgeVisibility }) {
-  const cameraPositions = triangle.vertices.map((vertex) =>
-    transformToCameraSpace(vertex.position),
+function createRenderableTriangle({ triangle, width, height, projection, edgeVisibility, modelMatrix }) {
+  const modelPositions = triangle.vertices.map((vertex) =>
+    transformPoint(modelMatrix, vertex.position),
   );
-  const faceNormal = resolveFaceNormal(triangle, cameraPositions);
+  const cameraPositions = modelPositions.map((position) =>
+    transformToCameraSpace(position),
+  );
+  const faceNormal = resolveFaceNormal(triangle, cameraPositions, modelMatrix);
 
   if (!isFrontFacing(faceNormal)) {
     return null;
@@ -163,9 +178,9 @@ function createRenderableTriangle({ triangle, width, height, projection, edgeVis
   };
 }
 
-function resolveFaceNormal(triangle, cameraPositions) {
+function resolveFaceNormal(triangle, cameraPositions, modelMatrix) {
   const geometricNormal = calculateFaceNormal(cameraPositions);
-  const sourceNormal = calculateAverageSourceNormal(triangle);
+  const sourceNormal = calculateAverageSourceNormal(triangle, modelMatrix);
 
   if (sourceNormal && dotProduct(geometricNormal, sourceNormal) < 0) {
     return sourceNormal;
@@ -181,14 +196,15 @@ function calculateFaceNormal(cameraPositions) {
   return normalizeVector(crossProduct(firstEdge, secondEdge));
 }
 
-function calculateAverageSourceNormal(triangle) {
+function calculateAverageSourceNormal(triangle, modelMatrix) {
   if (triangle.vertices.some((vertex) => vertex.normalGenerated || !vertex.normal)) {
     return null;
   }
 
   const summedNormal = triangle.vertices.reduce(
     (sum, vertex) => {
-      const cameraNormal = transformToCameraSpace(vertex.normal);
+      const transformedNormal = transformVector(modelMatrix, vertex.normal);
+      const cameraNormal = transformToCameraSpace(transformedNormal);
 
       return {
         x: sum.x + cameraNormal.x,
