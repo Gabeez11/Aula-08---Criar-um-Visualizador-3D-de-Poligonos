@@ -15,7 +15,8 @@ body {
 }
 
 button,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -57,6 +58,13 @@ button.is-active {
   display: flex;
   gap: 16px;
   justify-content: space-between;
+}
+
+.sample-loader {
+  align-items: end;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: minmax(160px, 1fr) auto;
 }
 
 .eyebrow {
@@ -105,6 +113,14 @@ input[type="file"] {
   border-radius: 6px;
   min-height: 42px;
   padding: 8px;
+}
+
+select {
+  background: #f6f8fa;
+  border: 1px solid #d0d7de;
+  border-radius: 6px;
+  min-height: 40px;
+  padding: 0 10px;
 }
 
 .message {
@@ -233,5 +249,10 @@ input[type="file"] {
 
   .viewer-controls button {
     flex: 1 1 140px;
+  }
+
+  .sample-loader {
+    align-items: stretch;
+    grid-template-columns: 1fr;
   }
 }

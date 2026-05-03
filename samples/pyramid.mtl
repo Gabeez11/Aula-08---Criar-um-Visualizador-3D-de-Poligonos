@@ -1,0 +1,11 @@
+newmtl pyramid_base
+Ka 0.16 0.08 0.02
+Kd 0.62 0.32 0.08
+Ks 0.2 0.18 0.12
+Ns 18
+
+newmtl pyramid_side
+Ka 0.18 0.1 0.0
+Kd 0.95 0.62 0.14
+Ks 0.35 0.3 0.16
+Ns 24

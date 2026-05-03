@@ -1,0 +1,17 @@
+newmtl cylinder_side
+Ka 0.09 0.05 0.14
+Kd 0.46 0.28 0.88
+Ks 0.28 0.22 0.4
+Ns 24
+
+newmtl cylinder_top
+Ka 0.12 0.08 0.02
+Kd 0.95 0.54 0.18
+Ks 0.34 0.28 0.2
+Ns 20
+
+newmtl cylinder_bottom
+Ka 0.08 0.02 0.04
+Kd 0.76 0.18 0.34
+Ks 0.26 0.18 0.2
+Ns 20

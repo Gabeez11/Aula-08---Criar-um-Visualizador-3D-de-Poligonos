@@ -14,7 +14,18 @@
             <p class="eyebrow">Etapa 4</p>
             <h1>Visualizador 3D de Poligonos</h1>
           </div>
-          <button id="loadSample" type="button">Carregar exemplo</button>
+          <div class="sample-loader" aria-label="Modelos prontos">
+            <label>
+              Modelo pronto
+              <select id="sampleSelect">
+                <option value="cube">Cubo</option>
+                <option value="pyramid">Piramide</option>
+                <option value="octahedron">Octaedro</option>
+                <option value="cylinder">Cilindro</option>
+              </select>
+            </label>
+            <button id="loadSample" type="button">Carregar modelo</button>
+          </div>
         </div>
 
         <form class="loader" id="fileForm">

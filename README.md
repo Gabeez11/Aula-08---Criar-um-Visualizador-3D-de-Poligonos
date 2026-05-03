@@ -27,8 +27,13 @@ npm test
 ## Como carregar modelos
 
 Na tela inicial, carregue um arquivo `.obj` e, se houver, um ou mais arquivos
-`.mtl`. Tambem existe o botao `Carregar exemplo`, que usa `samples/cube.obj` e
-`samples/cube.mtl`.
+`.mtl`. Tambem existe o seletor **Modelo pronto**, com quatro modelos para a
+apresentacao:
+
+- `samples/cube.obj`: cubo
+- `samples/pyramid.obj`: piramide
+- `samples/octahedron.obj`: octaedro
+- `samples/cylinder.obj`: cilindro octogonal
 
 A tela mostra:
 
@@ -59,7 +64,7 @@ normalizada.
 
 A etapa 3 desenha a `Mesh` montada na etapa anterior em um canvas 2D. A
 projecao inicial e isometrica; a tecla `P` alterna para perspectiva e volta para
-isometrica. A tecla `W` ativa wireframe e a tecla `S` volta ao modo solido.
+isometrica. A tecla `M` alterna entre solido, wireframe e solido com arestas.
 
 No modo solido, cada face usa a cor `Kd` do material MTL quando disponivel. O
 renderizador aplica backface culling pela componente `Z` da normal em espaco de
@@ -109,4 +114,3 @@ camera e calcula iluminacao simples por face com uma luz direcional fixa.
 2. **Montagem da geometria**: Converte faces em triangulos renderizaveis, centraliza e normaliza
 3. **Renderizacao**: Projecao isometrica/perspectiva, wireframe/solido, backface culling, iluminacao simples
 4. **Transformacoes 3D**: Model matrix para escala, rotacao e translacao em tempo real
-

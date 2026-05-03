@@ -25,6 +25,29 @@ const ROTATION_INCREMENT = Math.PI / 18;
 const SCALE_INCREMENT = 0.1;
 const TRANSLATION_INCREMENT = 0.1;
 
+const SAMPLE_MODELS = Object.freeze({
+  cube: {
+    label: "Cubo",
+    objPath: "./samples/cube.obj",
+    mtlPath: "./samples/cube.mtl",
+  },
+  pyramid: {
+    label: "Piramide",
+    objPath: "./samples/pyramid.obj",
+    mtlPath: "./samples/pyramid.mtl",
+  },
+  octahedron: {
+    label: "Octaedro",
+    objPath: "./samples/octahedron.obj",
+    mtlPath: "./samples/octahedron.mtl",
+  },
+  cylinder: {
+    label: "Cilindro",
+    objPath: "./samples/cylinder.obj",
+    mtlPath: "./samples/cylinder.mtl",
+  },
+});
+
 export const TOOLS = Object.freeze({
   NONE: "none",
   SCALE: "scale",
@@ -34,6 +57,7 @@ export const TOOLS = Object.freeze({
 
 const objInput = document.querySelector("#objInput");
 const mtlInput = document.querySelector("#mtlInput");
+const sampleSelect = document.querySelector("#sampleSelect");
 const loadSampleButton = document.querySelector("#loadSample");
 const message = document.querySelector("#message");
 const vertexCount = document.querySelector("#vertexCount");
@@ -112,9 +136,11 @@ async function loadSelectedFiles() {
 
 async function loadSample() {
   try {
+    const selectedSample =
+      SAMPLE_MODELS[sampleSelect.value] ?? SAMPLE_MODELS.cube;
     const [objResponse, mtlResponse] = await Promise.all([
-      fetch("./samples/cube.obj"),
-      fetch("./samples/cube.mtl"),
+      fetch(selectedSample.objPath),
+      fetch(selectedSample.mtlPath),
     ]);
 
     if (!objResponse.ok || !mtlResponse.ok) {
@@ -124,7 +150,7 @@ async function loadSample() {
     const materials = parseMTL(await mtlResponse.text());
     const model = parseOBJ(await objResponse.text(), { materials });
 
-    renderModelSummary(model, "samples/cube.obj");
+    renderModelSummary(model, `${selectedSample.label} (${selectedSample.objPath})`);
   } catch (error) {
     resetUI(`${error.message} Rode a pagina com npm start.`);
   }
